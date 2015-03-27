@@ -35,7 +35,7 @@ public class AlarmFragment extends Fragment{
 
     private static final String identifierArg = "identifier";
 
-    private String identifier;
+    public String identifier;
 
     private TextView identifierView;
     private EditText prettyNameEdit;
@@ -55,10 +55,10 @@ public class AlarmFragment extends Fragment{
 
     private ImageButton addButton;
 
-    private static final String ID_KEY = "identifier";
-    private static final String PRETTY_KEY = "pretty_name";
-    private static final String DESC_KEY = "description";
-    private static final String DETECTOR_KEY = "detectors";
+    public static final String ID_KEY = "identifier";
+    public static final String PRETTY_KEY = "pretty_name";
+    public static final String DESC_KEY = "description";
+    public static final String DETECTOR_KEY = "detectors";
 
     public static AlarmFragment newInstance(String param1) {
         AlarmFragment fragment = new AlarmFragment();
@@ -110,14 +110,14 @@ public class AlarmFragment extends Fragment{
         ringButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lock(false);
+                ring(true);
             }
         });
         stopButton = (Button) view.findViewById(R.id.stopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lock(true);
+                ring(false);
             }
         });
 
@@ -127,7 +127,7 @@ public class AlarmFragment extends Fragment{
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(recyclerManager);
-        recycleAdapter = new RecycleAdapter(getActivity(), pairedDetectors);
+        recycleAdapter = new RecycleAdapter(getActivity(), pairedDetectors, this);
         recyclerView.setAdapter(recycleAdapter);
 
 
@@ -194,12 +194,12 @@ public class AlarmFragment extends Fragment{
         }, getActivity()).execute();
     }
 
-    private void lock(final Boolean l){
+    private void ring(final Boolean ring){
         String url;
-        if (l){
-            url = WirelessApp.getBaseUrl() + "door/lock/" + identifier;
+        if (ring){
+            url = WirelessApp.getBaseUrl() + "alarm/ring/" + identifier;
         }else{
-            url = WirelessApp.getBaseUrl() + "door/unlock/" + identifier;
+            url = WirelessApp.getBaseUrl() + "alarm/stop/" + identifier;
         }
         final String u = url;
         new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
@@ -219,7 +219,7 @@ public class AlarmFragment extends Fragment{
                     try {
                         String status = result.getString("Status");
                         if (status.equals("OK")){
-                            Toast.makeText(getActivity(), l? "Locked":"Unlocked", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), ring? "Alarm ringing":"Alarm stopped", Toast.LENGTH_SHORT).show();
                         }else{
                             Toast.makeText(getActivity(), result.getString("error"), Toast.LENGTH_SHORT).show();
                         }
@@ -238,6 +238,8 @@ public class AlarmFragment extends Fragment{
             }
         }, getActivity()).execute();
     }
+
+
 
 
     @Override

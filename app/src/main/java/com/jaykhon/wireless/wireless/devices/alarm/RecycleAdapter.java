@@ -21,6 +21,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.ViewHold
     private ArrayList<String> identifiers;
     private ArrayList<String> names;
     private Context context;
+    private AlarmFragment fragment;
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         public DetectorCard card;
@@ -30,7 +31,8 @@ public class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.ViewHold
         }
     }
 
-    public RecycleAdapter(Context mContext, HashMap<String, String> pairedDetectors){
+    public RecycleAdapter(Context mContext, HashMap<String, String> pairedDetectors, AlarmFragment f){
+        fragment = f;
         identifiers = new ArrayList<>();
         names = new ArrayList<>();
         setDetectors(pairedDetectors);
@@ -49,14 +51,14 @@ public class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.ViewHold
 
     @Override
     public RecycleAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
-        DetectorCard c = new DetectorCard(context);
+        DetectorCard c = new DetectorCard(context, fragment);
         ViewHolder vh = new ViewHolder(c);
         return vh;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position){
-        viewHolder.card.prettyNameView.setText(names.get(position));
+        viewHolder.card.updateDetector(identifiers.get(position), names.get(position));
     }
 
     @Override
