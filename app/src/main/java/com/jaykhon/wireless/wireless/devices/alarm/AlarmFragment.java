@@ -28,6 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -52,6 +53,8 @@ public class AlarmFragment extends Fragment{
     ArrayAdapter<CharSequence> spinnerAdapter;
     HashMap<String, String> pairedDetectors;
     HashMap<String, String> unpairedDetectors;
+    private ArrayList<String> unpairedIdentifiers;
+    private ArrayList<String> unpairedNames;
 
     private ImageButton addButton;
 
@@ -123,6 +126,8 @@ public class AlarmFragment extends Fragment{
 
         pairedDetectors = new HashMap<>();
         unpairedDetectors = new HashMap<>();
+        unpairedIdentifiers = new ArrayList<>();
+        unpairedNames = new ArrayList<>();
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerManager = new LinearLayoutManager(getActivity());
@@ -139,6 +144,12 @@ public class AlarmFragment extends Fragment{
         spinner.setAdapter(spinnerAdapter);
 
         addButton = (ImageButton) view.findViewById(R.id.add_button);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addDetector();
+            }
+        });
 
         if (savedInstanceState!= null && savedInstanceState.containsKey(ID_KEY)){
             identifierView.setText(savedInstanceState.getString(ID_KEY));
@@ -239,6 +250,51 @@ public class AlarmFragment extends Fragment{
         }, getActivity()).execute();
     }
 
+    private void addDetector(){
+        final String selected = unpairedIdentifiers.get(spinner.getSelectedItemPosition());
+
+        final String url = WirelessApp.getBaseUrl() + "alarm/add/detector";
+        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
+            @Override
+            public JSONObject execute() {
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put(AlarmFragment.ID_KEY, identifier);
+                    obj.put("detector", selected);
+                    return SendRequest.postJsonToUrl(url, obj, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        }, new ResultListener<JSONObject>() {
+            @Override
+            public void onResultsSucceded(JSONObject result) {
+                if( result != null){
+                    try {
+                        String status = result.getString("Status");
+                        if (status.equals("OK")){
+                            Toast.makeText(getActivity(),"Added", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(getActivity(), result.getString("error"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }else{
+                    Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+                }
+                reload();
+
+            }
+
+            @Override
+            public void onResultsFail() {
+            }
+        }, getActivity()).execute();
+    }
+
 
 
 
@@ -283,7 +339,7 @@ public class AlarmFragment extends Fragment{
                         recycleAdapter.setDetectors(pairedDetectors);
                         recycleAdapter.notifyDataSetChanged();
                         spinnerAdapter.clear();
-                        spinnerAdapter.addAll(unpairedDetectors.values());
+                        spinnerAdapter.addAll(unpairedNames);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -312,10 +368,15 @@ public class AlarmFragment extends Fragment{
             JSONArray allDetectors = WirelessApp.getDevices().getJSONArray("detector");
             int len = allDetectors.length();
             unpairedDetectors.clear();
+            unpairedNames.clear();
+            unpairedIdentifiers.clear();
             for (int i=0; i<len; i++){
                 String det_id = ((JSONArray) allDetectors.get(i)).getString(0);
                 if (!pairedDetectors.containsKey(det_id)){
-                    unpairedDetectors.put(det_id, ((JSONArray) allDetectors.get(i)).getString(1));
+                    unpairedIdentifiers.add(det_id);
+                    String name = ((JSONArray) allDetectors.get(i)).getString(1);
+                    unpairedNames.add(name);
+                    unpairedDetectors.put(det_id, name);
                 }
             }
         } catch (JSONException e) {
