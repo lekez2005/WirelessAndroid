@@ -134,7 +134,7 @@ public class AlarmFragment extends Fragment{
 
         spinner = (Spinner) view.findViewById(R.id.spinner);
         spinnerAdapter = new ArrayAdapter<CharSequence>(getActivity(),
-                android.R.layout.simple_spinner_item);
+                android.R.layout.simple_spinner_dropdown_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerAdapter);
 
