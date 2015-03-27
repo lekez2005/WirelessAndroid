@@ -1,11 +1,10 @@
 package com.jaykhon.wireless.wireless.devices.alarm;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class AlarmFragment extends Fragment{
+public class AlarmFragment extends Fragment {
 
     private static final String identifierArg = "identifier";
 
