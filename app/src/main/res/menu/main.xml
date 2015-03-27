@@ -5,11 +5,11 @@
         android:icon="@drawable/ic_menu_home"
         android:title="@string/home"
         android:orderInCategory="0"
-        app:showAsAction="always" />
+        android:showAsAction="always" />
     <item android:id="@+id/refresh_server"
         android:icon="@drawable/ic_action_refresh"
         android:title="@string/refresh"
-        app:showAsAction="withText|ifRoom" />
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:showAsAction="always" />
+    <item android:id="@+id/select_user" android:title="@string/action_select_user"
+        android:orderInCategory="100" android:showAsAction="never" />
 </menu>

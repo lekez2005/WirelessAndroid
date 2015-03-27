@@ -1,22 +1,23 @@
 package com.jaykhon.wireless.wireless;
 
+import android.app.ActionBar;
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.jaykhon.wireless.wireless.authorize.UserSelectActivity;
 import com.jaykhon.wireless.wireless.devices.alarm.AlarmFragment;
 import com.jaykhon.wireless.wireless.devices.door.DoorFragment;
 import com.jaykhon.wireless.wireless.devices.rfid.RfidFragment;
@@ -38,8 +39,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 
-public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends Activity  implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -57,7 +57,7 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+                getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
         // Set up the drawer.
@@ -77,21 +77,21 @@ public class MainActivity extends ActionBarActivity
             String deviceType = ids[0];
             if ("rfid".equals(deviceType)){
                 //Dialogs.makeSingleButton(MainActivity.this, "devices null WHOA");
-                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, RfidFragment.newInstance(ids[1]))
                         .addToBackStack(null)
                         .commit();
 
             }else if ("door".equals(deviceType)){
-                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, DoorFragment.newInstance(ids[1]))
                         .addToBackStack(null)
                         .commit();
 
             }else if ("alarm".equals(deviceType)){
-                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, AlarmFragment.newInstance(ids[1]))
                         .addToBackStack(null)
@@ -100,7 +100,7 @@ public class MainActivity extends ActionBarActivity
                 Dialogs.makeSingleButton(MainActivity.this,
                         String.format("Parent: %s Child: %s\n Implement other devices", ids[0], ids[1]));
                 //Dialogs.makeSingleButton(MainActivity.this, "devices null WHOA");
-                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, new MainActivityFragment())
                         .commit();
@@ -108,7 +108,7 @@ public class MainActivity extends ActionBarActivity
 
         }else{
             //Dialogs.makeSingleButton(MainActivity.this, "devices null WHOA");
-            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new MainActivityFragment())
                     .commit();
@@ -118,7 +118,7 @@ public class MainActivity extends ActionBarActivity
     }
 
     public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
+        ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
@@ -146,10 +146,12 @@ public class MainActivity extends ActionBarActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.select_user) {
+            Intent intent = new Intent(this, UserSelectActivity.class);
+            startActivity(intent);
             return true; //TODO put settings here
         }else if(id == R.id.action_home){
-            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new MainActivityFragment())
                     .commit();
