@@ -4,9 +4,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -46,6 +48,7 @@ import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
 import com.jaykhon.wireless.wireless.connect.ResultListener;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
+import com.jaykhon.wireless.wireless.utils.Preferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,6 +86,12 @@ public class UserSelectActivity extends Activity {
         userNames = new ArrayList<>();
 
         switchButton = (Button) findViewById(R.id.switchButton);
+        switchButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchUser();
+            }
+        });
 
 
 
@@ -107,8 +116,6 @@ public class UserSelectActivity extends Activity {
         getActionBar().setHomeButtonEnabled(true);
 
         reload();
-
-
     }
 
     private void reload(){
@@ -132,6 +139,74 @@ public class UserSelectActivity extends Activity {
                         String status = result.getString("Status");
                         if (status.equals("OK")){
                             getUsersFromJson(result);
+                        }else{
+                            Toast.makeText(getApplicationContext(), result.getString("error"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }else{
+                    Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onResultsFail() {
+            }
+        }, getApplicationContext()).execute();
+    }
+
+    private void switchUser(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(UserSelectActivity.this);
+        builder.setMessage("Switch user? This will log out any other user with this user id")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                switchUserAtServer();
+                            }
+                        }
+        );
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void switchUserAtServer(){
+        final String token = new SessionIdentifierGenerator().nextSessionId();
+        final String url = WirelessApp.getBaseUrl() + "user/update/token";
+        final String identifier = userIds.get(usersSpinner.getSelectedItemPosition());
+
+        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
+            @Override
+            public JSONObject execute() {
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("identifier", identifier);
+                    obj.put("token", token);
+                    return SendRequest.postJsonToUrl(url, obj, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        }, new ResultListener<JSONObject>() {
+            @Override
+            public void onResultsSucceded(JSONObject result) {
+                if( result != null){
+                    try {
+                        String status = result.getString("Status");
+                        if (status.equals("OK")){
+                            Preferences p = new Preferences(getApplicationContext());
+                            p.setUserId(identifier);
+                            p.setUserToken(token);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
                         }else{
                             Toast.makeText(getApplicationContext(), result.getString("error"), Toast.LENGTH_SHORT).show();
                         }

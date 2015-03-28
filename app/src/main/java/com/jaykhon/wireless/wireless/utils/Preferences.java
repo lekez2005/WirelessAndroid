@@ -10,6 +10,8 @@ import android.preference.PreferenceManager;
 public class Preferences {
     private static final String SERVER_PORT = "port";
     private static final String SERVER_IP = "ip";
+    private static final String USER_ID = "id";
+    private static final String USER_TOKEN = "token";
 
     private SharedPreferences sharedPreferences;
 
@@ -35,6 +37,26 @@ public class Preferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(SERVER_PORT, port);
         editor.commit();
+    }
+
+    public void setUserId(String id){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(USER_ID, id);
+        editor.commit();
+    }
+
+    public String getUserId(){
+        return sharedPreferences.getString(USER_ID, "");
+    }
+
+    public void setUserToken(String token){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(USER_TOKEN, token);
+        editor.commit();
+    }
+
+    public String getUserToken(){
+        return sharedPreferences.getString(USER_TOKEN, "");
     }
 
     public String getBaseUrl(){
