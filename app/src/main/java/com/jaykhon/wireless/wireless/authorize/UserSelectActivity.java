@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
@@ -41,6 +42,14 @@ import java.util.List;
 import com.jaykhon.wireless.wireless.MainActivity;
 import com.jaykhon.wireless.wireless.R;
 import com.jaykhon.wireless.wireless.WirelessApp;
+import com.jaykhon.wireless.wireless.connect.Async;
+import com.jaykhon.wireless.wireless.connect.Command;
+import com.jaykhon.wireless.wireless.connect.ResultListener;
+import com.jaykhon.wireless.wireless.connect.SendRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A login screen that offers login via email/password.
@@ -69,6 +78,9 @@ public class UserSelectActivity extends Activity {
                 android.R.layout.simple_spinner_dropdown_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         usersSpinner.setAdapter(spinnerAdapter);
+
+        userIds = new ArrayList<>();
+        userNames = new ArrayList<>();
 
         switchButton = (Button) findViewById(R.id.switchButton);
 
@@ -101,6 +113,59 @@ public class UserSelectActivity extends Activity {
 
     private void reload(){
         final String url = WirelessApp.getBaseUrl() + "user/users";
+
+        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
+            @Override
+            public JSONObject execute() {
+                try {
+                    return SendRequest.getJsonFromUrl(url, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        }, new ResultListener<JSONObject>() {
+            @Override
+            public void onResultsSucceded(JSONObject result) {
+                if( result != null){
+                    try {
+                        String status = result.getString("Status");
+                        if (status.equals("OK")){
+                            getUsersFromJson(result);
+                        }else{
+                            Toast.makeText(getApplicationContext(), result.getString("error"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }else{
+                    Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onResultsFail() {
+            }
+        }, getApplicationContext()).execute();
+    }
+
+    private void getUsersFromJson(JSONObject result){
+        try {
+            JSONArray users = result.getJSONArray("users");
+            userIds.clear();
+            userNames.clear();
+            for (int i = 0; i< users.length(); i++){
+                JSONObject user = users.getJSONObject(i);
+                userIds.add(user.getString("identifier"));
+                userNames.add(user.getString("name"));
+            }
+            spinnerAdapter.clear();
+            spinnerAdapter.addAll(userNames);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
