@@ -7,36 +7,83 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.jaykhon.wireless.wireless.authorize.UserSelectActivity">
 
-    <!-- Login progress -->
-    <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp" android:visibility="gone" />
 
-    <ScrollView android:id="@+id/login_form" android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="fill_parent"
 
-        <LinearLayout android:id="@+id/email_login_form" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-            <AutoCompleteTextView android:id="@+id/email" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:hint="@string/prompt_email"
-                android:inputType="textEmailAddress" android:maxLines="1"
-                android:singleLine="true" />
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/users_spinner" />
 
-            <EditText android:id="@+id/password" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:hint="@string/prompt_password"
-                android:imeActionId="@+id/login"
-                android:imeActionLabel="@string/action_sign_in_short"
-                android:imeOptions="actionUnspecified" android:inputType="textPassword"
-                android:maxLines="1" android:singleLine="true" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_user_text"
+            android:id="@+id/switchButton"
+            android:layout_below="@+id/users_spinner"
+            android:layout_alignParentRight="true" />
 
-            <Button android:id="@+id/email_sign_in_button" style="?android:textAppearanceSmall"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:text="@string/action_sign_in"
-                android:textStyle="bold" />
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"/>
 
-        </LinearLayout>
-    </ScrollView>
+        <ToggleButton
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/switchButton"
+            android:text="Add User"
+            android:checked="false"
+            android:textOn="Cancel"
+            android:textOff="Add User"
+            android:id="@+id/toggleButton" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/new_user_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/new_user_id"
+            android:inputType="text"
+            android:hint="id" />
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"/>
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/new_user_name"
+            android:inputType="text"
+            android:hint="Name" />
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/authorize_string"
+            android:id="@+id/new_user_authorized"
+            android:checked="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save_text"
+            android:id="@+id/button"
+            android:layout_gravity="right" />
+    </LinearLayout>
 
 </LinearLayout>
 
