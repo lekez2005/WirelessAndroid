@@ -1,10 +1,13 @@
 package com.jaykhon.wireless.wireless.connect;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.jaykhon.wireless.wireless.R;
 import com.jaykhon.wireless.wireless.WirelessApp;
+import com.jaykhon.wireless.wireless.authorize.UserSelectActivity;
 import com.jaykhon.wireless.wireless.utils.Preferences;
 
 
@@ -16,6 +19,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -158,7 +162,27 @@ public class SendRequest {
 
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (Exception e){
+        }catch (FileNotFoundException e){
+            try {
+                int responseCode = urlConnection.getResponseCode();
+                switch (responseCode){
+                    case 401:
+                        //TODO move this to callers
+                        Intent intent = new Intent(mContext, UserSelectActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        mContext.startActivity(intent);
+                        break;
+                    case 500:
+                        break;
+                    case 404:
+                        break;
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+        }catch (Exception e){
             e.printStackTrace();
         }finally {
             urlConnection.disconnect();
