@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.jaykhon.wireless.wireless.R;
 import com.jaykhon.wireless.wireless.WirelessApp;
+import com.jaykhon.wireless.wireless.utils.Preferences;
 
 
 import org.json.JSONArray;
@@ -51,6 +52,9 @@ public class SendRequest {
     public static Context mContext;
     public static final String SSL_VERSION = "SSLv3";
     public static final String HOSTNAME = "192.168.1.7";
+
+    private static final String ID_KEY = "user_id";
+    private static final String TOKEN_KEY = "token";
 
     private static final String LOG = "SendRequest";
 
@@ -109,6 +113,11 @@ public class SendRequest {
     }
 
     public static void addHeaders(HttpsURLConnection urlConnection, Map<String, String> headers){
+        Preferences preferences = new Preferences(mContext);
+
+        urlConnection.setRequestProperty(ID_KEY, preferences.getUserId());
+        urlConnection.setRequestProperty(TOKEN_KEY, preferences.getUserToken());
+
         if (headers != null){
             for (String key : headers.keySet()) {
                 urlConnection.setRequestProperty(key, headers.get(key));
@@ -156,63 +165,6 @@ public class SendRequest {
         }
         return retVal;
     }
-
-
-    public static JSONArray getJsonArray(String url, Map<String, String> headers) throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-        if (WirelessApp.networkConnected()){
-            URL ur = new URL(url);
-            HttpsURLConnection urlConnection =
-                    (HttpsURLConnection) ur.openConnection();
-            urlConnection.setSSLSocketFactory(HTTPSContext.getInstance().getSocketFactory());
-            urlConnection.setHostnameVerifier(HTTPSContext.getVerifier());
-
-            if (headers != null){
-                for (String key : headers.keySet()) {
-                    urlConnection.setRequestProperty(key, headers.get(key));
-                }
-            }
-
-
-
-            JSONArray retVal = null;
-            try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-
-                if (urlConnection.getResponseCode() != 200){
-                    Log.d(LOG, urlConnection.getResponseMessage());
-                }else{
-                    String result = getString(in);
-
-                    in.close();
-
-                    retVal = new JSONArray(result);
-                    WirelessApp.setLastConnectionSuccess(true);
-
-                    Log.d(LOG, retVal.toString());
-                }
-
-            } catch (JSONException e) {
-                WirelessApp.setLastConnectionSuccess(false);
-                e.printStackTrace();
-            } catch (ConnectException e){
-                e.printStackTrace();
-            }catch (Exception e){
-                e.printStackTrace();
-            }finally {
-                urlConnection.disconnect();
-            }
-            return retVal;
-        }else{
-            WirelessApp.setLastConnectionSuccess(false);
-            return null;
-        }
-
-    }
-
-
-
-
-
 
     public static class HTTPSContext {
         private static SSLContext context = null;

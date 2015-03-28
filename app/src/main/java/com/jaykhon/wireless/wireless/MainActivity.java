@@ -192,27 +192,15 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
                     WirelessApp.setPort(port);
                     final String url = WirelessApp.getBaseUrl();
                     Log.d("Wireless: ", url);
-                    new Async<Void, Void, JSONArray>(new Command<JSONArray>() {
+                    new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
                         @Override
-                        public JSONArray execute() {
-                            try {
-                                return SendRequest.getJsonArray(url, null);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (CertificateException e) {
-                                e.printStackTrace();
-                            } catch (NoSuchAlgorithmException e) {
-                                e.printStackTrace();
-                            } catch (KeyStoreException e) {
-                                e.printStackTrace();
-                            } catch (KeyManagementException e) {
-                                e.printStackTrace();
-                            }
-                            return null;
+                        public JSONObject execute() {
+                            return SendRequest.getJsonFromUrl(url, null);
+
                         }
-                    }, new ResultListener<JSONArray>() {
+                    }, new ResultListener<JSONObject>() {
                         @Override
-                        public void onResultsSucceded(JSONArray result) {
+                        public void onResultsSucceded(JSONObject result) {
                             if( result != null){
                                 try {
                                     String f = result.toString(4);
