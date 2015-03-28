@@ -73,6 +73,7 @@ public class NavigationDrawerFragment extends Fragment {
     private DrawerLayout mDrawerLayout;
     private ExpandableListView mDrawerExpandableView;
     private View mFragmentContainerView;
+    private int lastExpandedPosition = -1;
 
     private int mCurrentParentPosition = 0;
     private int mCurrentChildPosition = 0;
@@ -118,6 +119,16 @@ public class NavigationDrawerFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 selectItem(groupPosition, childPosition);
                 return true;
+            }
+        });
+        mDrawerExpandableView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (lastExpandedPosition != -1
+                        && groupPosition != lastExpandedPosition) {
+                    mDrawerExpandableView.collapseGroup(lastExpandedPosition);
+                }
+                lastExpandedPosition = groupPosition;
             }
         });
         setAdapter();
