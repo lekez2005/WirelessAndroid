@@ -18,6 +18,10 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
+    <permission android:name="com.jaykhon.wireless.wireless.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.jaykhon.wireless.wireless.permission.C2D_MESSAGE" />
+
     <application
         android:name=".WirelessApp"
         android:allowBackup="true"
@@ -40,6 +44,19 @@
             android:label="@string/title_activity_user_select"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
+
+        <receiver
+            android:name=".gcm.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.jaykhon.wireless.wireless" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".gcm.GCMIntentService" />
+
     </application>
 
 </manifest>

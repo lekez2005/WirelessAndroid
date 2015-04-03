@@ -48,6 +48,7 @@ import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
 import com.jaykhon.wireless.wireless.connect.ResultListener;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
+import com.jaykhon.wireless.wireless.gcm.GCMRegister;
 import com.jaykhon.wireless.wireless.utils.Preferences;
 
 import org.json.JSONArray;
@@ -170,6 +171,8 @@ public class UserSelectActivity extends Activity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 switchUserAtServer();
+                                GCMRegister g = new GCMRegister(getApplicationContext());
+                                g.register();
                             }
                         }
         );

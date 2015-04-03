@@ -171,7 +171,7 @@ public class SendRequest {
                         Intent intent = new Intent(mContext, UserSelectActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        mContext.startActivity(intent);
+                        //mContext.startActivity(intent);
                         break;
                     case 500:
                         break;
