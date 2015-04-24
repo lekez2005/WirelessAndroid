@@ -21,7 +21,7 @@ import java.io.IOException;
  * Created by lekez2005 on 4/3/15.
  */
 public class GCMRegister {
-    private String TAG = "RegisterGCM";
+    private static final String TAG = "RegisterGCM";
     Context context;
 
     String SENDER_ID = "263165861177";
@@ -41,7 +41,7 @@ public class GCMRegister {
 //        }
     }
 
-    private String getRegistrationId(Context context){
+    public static String getRegistrationId(Context context){
         Preferences preferences = new Preferences(context);
         String registrationId = preferences.getGcmId();
         if (registrationId.isEmpty()){

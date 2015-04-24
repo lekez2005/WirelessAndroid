@@ -171,8 +171,7 @@ public class UserSelectActivity extends Activity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 switchUserAtServer();
-                                GCMRegister g = new GCMRegister(getApplicationContext());
-                                g.register();
+
                             }
                         }
         );
@@ -185,6 +184,14 @@ public class UserSelectActivity extends Activity {
         final String url = WirelessApp.getBaseUrl() + "user/update/token";
         final String identifier = userIds.get(usersSpinner.getSelectedItemPosition());
 
+
+        final String gcm_id = GCMRegister.getRegistrationId(getApplicationContext());
+        if (gcm_id.isEmpty()){
+            GCMRegister g = new GCMRegister(getApplicationContext());
+            g.register();
+        }
+
+
         new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
             @Override
             public JSONObject execute() {
@@ -192,6 +199,7 @@ public class UserSelectActivity extends Activity {
                     JSONObject obj = new JSONObject();
                     obj.put("identifier", identifier);
                     obj.put("token", token);
+                    obj.put("gcm_id", gcm_id);
                     return SendRequest.postJsonToUrl(url, obj, null);
                 } catch (Exception e) {
                     e.printStackTrace();

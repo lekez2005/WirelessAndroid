@@ -19,6 +19,11 @@ import com.jaykhon.wireless.wireless.R;
  */
 public class GCMIntentService extends IntentService {
 
+    private static final String MESSAGE_STATUS = "status";
+    private static final String IDENTIFIER = "identifier";
+    private static final String DEVICE = "device";
+    private static final String MESSAGE = "message";
+
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
@@ -46,26 +51,17 @@ public class GCMIntentService extends IntentService {
              */
             if (GoogleCloudMessaging.
                     MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                sendNotification("Send error: " + extras.toString());
+                extras.putString(MESSAGE_STATUS, "Send Error");
+                sendNotification(extras);
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_DELETED.equals(messageType)) {
-                sendNotification("Deleted messages on server: " +
-                        extras.toString());
+                extras.putString(MESSAGE_STATUS, "Deleted messages on server");
+                sendNotification(extras);
                 // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                // This loop represents the service doing some work.
-                for (int i=0; i<5; i++) {
-                    Log.i(TAG, "Working... " + (i+1)
-                            + "/5 @ " + SystemClock.elapsedRealtime());
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                    }
-                }
-                Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
-                // Post notification of received message.
-                sendNotification("Received: " + extras.toString());
+
+                sendNotification(extras);
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -76,20 +72,27 @@ public class GCMIntentService extends IntentService {
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg) {
+    private void sendNotification(Bundle extras) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MainActivity.class), 0);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(MainActivity.IDENTIFIER_KEY, extras.getString(IDENTIFIER, ""));
+        intent.putExtra(MainActivity.DEVICE_KEY, extras.getString(DEVICE, ""));
+        intent.setAction("com.jaykhon.wireless.wireless.MainActivity");
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_action_refresh)
-                        .setContentTitle("GCM Notification")
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(msg))
-                        .setContentText(msg);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        String message = extras.getString(MESSAGE, "Detector " + extras.getString(IDENTIFIER, "") + " triggered");
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this)
+                                .setSmallIcon(R.drawable.ic_action_refresh)
+                                .setContentTitle("Alert")
+                                .setStyle(new NotificationCompat.BigTextStyle()
+                                        .bigText(message))
+                                .setPriority(NotificationCompat.PRIORITY_MAX)
+                                .setAutoCancel(true)
+                                .setContentText(message);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

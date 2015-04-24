@@ -99,7 +99,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentParentPosition, mCurrentChildPosition);
+        selectItemNoCallback(mCurrentParentPosition, mCurrentChildPosition);
     }
 
     @Override
@@ -278,6 +278,17 @@ public class NavigationDrawerFragment extends Fragment {
         }
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);
+        }
+    }
+
+    private void selectItemNoCallback(int groupPosition, int childPosition){
+        mCurrentParentPosition = groupPosition;
+        mCurrentChildPosition = childPosition;
+        if (mDrawerExpandableView != null) {
+            mDrawerExpandableView.setSelectedChild(groupPosition, childPosition, true);
+        }
+        if (mDrawerLayout != null) {
+            mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
     }
 

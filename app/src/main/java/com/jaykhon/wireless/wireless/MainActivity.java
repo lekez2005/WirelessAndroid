@@ -45,6 +45,8 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    public static final String DEVICE_KEY = "device";
+    public static final String IDENTIFIER_KEY = "identifier";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -64,57 +66,57 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        Intent i = getIntent();
+        replaceFragment(i.getStringExtra(DEVICE_KEY), i.getStringExtra(IDENTIFIER_KEY));
         }
 
     @Override
     public void onNavigationDrawerItemSelected(int parentPosition, int childPosition) {
-
-        // TODO fix reloading twice
-        // update the main content by replacing fragments
         JSONObject devices = WirelessApp.getDevices();
-        if (devices != null){
+        if (devices != null) {
             String[] ids = Json.getIdentifiersFromJson(parentPosition, childPosition, devices);
-            String deviceType = ids[0];
-            if ("rfid".equals(deviceType)){
-                //Dialogs.makeSingleButton(MainActivity.this, "devices null WHOA");
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, RfidFragment.newInstance(ids[1]))
-                        .addToBackStack(null)
-                        .commit();
+            replaceFragment(ids[0], ids[1]);
+        }else {
+            replaceFragment(null, null);
+        }
+    }
 
-            }else if ("door".equals(deviceType)){
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, DoorFragment.newInstance(ids[1]))
-                        .addToBackStack(null)
-                        .commit();
+    private  void replaceFragment(String deviceType, String identifier){
+        if (deviceType == null || identifier == null) {
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, new MainActivityFragment())
+                    .commit();
+        }else if ("rfid".equals(deviceType)){
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, RfidFragment.newInstance(identifier))
+                    .addToBackStack(null)
+                    .commit();
 
-            }else if ("alarm".equals(deviceType)){
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, AlarmFragment.newInstance(ids[1]))
-                        .addToBackStack(null)
-                        .commit();
-            }else{
-                Dialogs.makeSingleButton(MainActivity.this,
-                        String.format("Parent: %s Child: %s\n Implement other devices", ids[0], ids[1]));
-                //Dialogs.makeSingleButton(MainActivity.this, "devices null WHOA");
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, new MainActivityFragment())
-                        .commit();
-            }
+        }else if ("door".equals(deviceType) ||"detector".equals(deviceType)){
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, DoorFragment.newInstance(identifier))
+                    .addToBackStack(null)
+                    .commit();
 
+        }else if ("alarm".equals(deviceType)){
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, AlarmFragment.newInstance(identifier))
+                    .addToBackStack(null)
+                    .commit();
         }else{
+            Dialogs.makeSingleButton(MainActivity.this,
+                    String.format("Parent: %s Child: %s\n Implement other devices", deviceType, identifier));
             //Dialogs.makeSingleButton(MainActivity.this, "devices null WHOA");
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new MainActivityFragment())
                     .commit();
         }
-
-
     }
 
     public void restoreActionBar() {
