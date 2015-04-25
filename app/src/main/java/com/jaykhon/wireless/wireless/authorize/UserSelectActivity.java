@@ -1,45 +1,31 @@
 package com.jaykhon.wireless.wireless.authorize;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentResolver;
-import android.content.CursorLoader;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.app.ActionBar;
-import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.jaykhon.wireless.wireless.MainActivity;
 import com.jaykhon.wireless.wireless.R;
@@ -60,198 +46,33 @@ import org.json.JSONObject;
  */
 public class UserSelectActivity extends Activity {
 
-    private Spinner usersSpinner;
-    private ArrayAdapter<CharSequence> spinnerAdapter;
-    private Button switchButton;
-    private ToggleButton toggleButton;
-    private LinearLayout newUserLayout;
-    private EditText newUserIdView;
-    private EditText newUserNameView;
-    private CheckBox newUserAuthorized;
-
-    private ArrayList<String> userIds;
-    private ArrayList<String> userNames;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_user);
-
-        usersSpinner = (Spinner) findViewById(R.id.users_spinner);
-        spinnerAdapter = new ArrayAdapter<CharSequence>(this,
-                android.R.layout.simple_spinner_dropdown_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        usersSpinner.setAdapter(spinnerAdapter);
-
-        userIds = new ArrayList<>();
-        userNames = new ArrayList<>();
-
-        switchButton = (Button) findViewById(R.id.switchButton);
-        switchButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchUser();
-            }
-        });
-
-
-
-        toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
-        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
-                    newUserLayout.setVisibility(View.VISIBLE);
-                }else{
-                    newUserLayout.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        newUserLayout = (LinearLayout) findViewById(R.id.new_user_layout);
-        newUserLayout.setVisibility(View.GONE);
-        newUserIdView = (EditText) findViewById(R.id.new_user_id);
-        newUserNameView = (EditText) findViewById(R.id.new_user_name);
-        newUserAuthorized = (CheckBox) findViewById(R.id.new_user_authorized);
-
         getActionBar().setHomeButtonEnabled(true);
+        setContentView(R.layout.activity_user);
 
-        reload();
+        if (savedInstanceState != null)
+            return;
+
+        SelectUserFragment selectUserFragment = new SelectUserFragment();
+        getFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, selectUserFragment)
+                .commit();
     }
 
-    private void reload(){
-        final String url = WirelessApp.getBaseUrl() + "user/users";
-
-        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
-            @Override
-            public JSONObject execute() {
-                try {
-                    return SendRequest.getJsonFromUrl(url, null);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        }, new ResultListener<JSONObject>() {
-            @Override
-            public void onResultsSucceded(JSONObject result) {
-                if( result != null){
-                    try {
-                        String status = result.getString("Status");
-                        if (status.equals("OK")){
-                            getUsersFromJson(result);
-                        }else{
-                            Toast.makeText(getApplicationContext(), result.getString("error"), Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }else{
-                    Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onResultsFail() {
-            }
-        }, getApplicationContext()).execute();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_select_user, menu);
+        restoreActionBar();
+        return true;
     }
 
-    private void switchUser(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(UserSelectActivity.this);
-        builder.setMessage("Switch user? This will log out any other user with this user id")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                switchUserAtServer();
-
-                            }
-                        }
-        );
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
-    private void switchUserAtServer(){
-        final String token = new SessionIdentifierGenerator().nextSessionId();
-        final String url = WirelessApp.getBaseUrl() + "user/update/token";
-        final String identifier = userIds.get(usersSpinner.getSelectedItemPosition());
-
-
-        final String gcm_id = GCMRegister.getRegistrationId(getApplicationContext());
-        if (gcm_id.isEmpty()){
-            GCMRegister g = new GCMRegister(getApplicationContext());
-            g.register();
-        }
-
-
-        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
-            @Override
-            public JSONObject execute() {
-                try {
-                    JSONObject obj = new JSONObject();
-                    obj.put("identifier", identifier);
-                    obj.put("token", token);
-                    obj.put("gcm_id", gcm_id);
-                    return SendRequest.postJsonToUrl(url, obj, null);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        }, new ResultListener<JSONObject>() {
-            @Override
-            public void onResultsSucceded(JSONObject result) {
-                if( result != null){
-                    try {
-                        String status = result.getString("Status");
-                        if (status.equals("OK")){
-                            Preferences p = new Preferences(getApplicationContext());
-                            p.setUserId(identifier);
-                            p.setUserToken(token);
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                        }else{
-                            Toast.makeText(getApplicationContext(), result.getString("error"), Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }else{
-                    Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onResultsFail() {
-            }
-        }, getApplicationContext()).execute();
-    }
-
-    private void getUsersFromJson(JSONObject result){
-        try {
-            JSONArray users = result.getJSONArray("users");
-            userIds.clear();
-            userNames.clear();
-            for (int i = 0; i< users.length(); i++){
-                JSONObject user = users.getJSONObject(i);
-                userIds.add(user.getString("identifier"));
-                userNames.add(user.getString("name"));
-            }
-            spinnerAdapter.clear();
-            spinnerAdapter.addAll(userNames);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void restoreActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle("Users");
     }
 
     @Override
@@ -264,7 +85,6 @@ public class UserSelectActivity extends Activity {
         }
         return super.onOptionsItemSelected(menuItem);
     }
-
 }
 
 

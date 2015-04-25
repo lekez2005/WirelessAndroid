@@ -39,7 +39,7 @@
             android:checked="false"
             android:textOn="Cancel"
             android:textOff="Add User"
-            android:id="@+id/toggleButton" />
+            android:id="@+id/add_user_button" />
     </RelativeLayout>
 
     <LinearLayout
