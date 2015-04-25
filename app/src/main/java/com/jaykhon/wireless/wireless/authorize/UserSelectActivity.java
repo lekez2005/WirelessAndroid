@@ -44,7 +44,10 @@ import org.json.JSONObject;
 /**
  * A login screen that offers login via email/password.
  */
-public class UserSelectActivity extends Activity {
+public class UserSelectActivity extends Activity implements OnSwitchFragmentListener {
+
+    public static final String SELECT_USER = "select_user";
+    public static final String ADD_USER = "add_user";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +87,26 @@ public class UserSelectActivity extends Activity {
                 return true;
         }
         return super.onOptionsItemSelected(menuItem);
+    }
+
+    @Override
+    public void onSwitchFragment(String newFrag) {
+        switch(newFrag){
+            case SELECT_USER:
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new SelectUserFragment())
+                        .addToBackStack(null)
+                        .commit();
+                break;
+            case ADD_USER:
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new AddUserFragment())
+                        .addToBackStack(null)
+                        .commit();
+                break;
+
+        }
+
     }
 }
 

@@ -1,5 +1,6 @@
 package com.jaykhon.wireless.wireless.authorize;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -34,6 +35,9 @@ import java.util.ArrayList;
  * Created by lekez2005 on 4/24/15.
  */
 public class SelectUserFragment  extends Fragment{
+
+    OnSwitchFragmentListener mCallback;
+
     private Spinner usersSpinner;
     private ArrayAdapter<CharSequence> spinnerAdapter;
     private Button switchButton;
@@ -42,6 +46,17 @@ public class SelectUserFragment  extends Fragment{
 
     private ArrayList<String> userIds;
     private ArrayList<String> userNames;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            mCallback = (OnSwitchFragmentListener) activity;
+        }catch (ClassCastException e){
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -71,7 +86,7 @@ public class SelectUserFragment  extends Fragment{
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                mCallback.onSwitchFragment(UserSelectActivity.ADD_USER);
             }
         });
 
