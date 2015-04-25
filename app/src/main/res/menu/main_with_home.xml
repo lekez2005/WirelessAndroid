@@ -1,6 +1,10 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_home"
+        android:icon="@drawable/ic_menu_home"
+        android:title="@string/home"
+        android:orderInCategory="0"
+        android:showAsAction="always" />
     <item android:id="@+id/refresh_server"
         android:icon="@drawable/ic_action_refresh"
         android:title="@string/refresh"
@@ -10,4 +14,5 @@
         android:showAsAction="never" />
     <item android:id="@+id/select_user" android:title="@string/action_select_user"
         android:orderInCategory="100" android:showAsAction="never" />
+
 </menu>

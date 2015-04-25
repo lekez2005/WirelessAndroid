@@ -44,6 +44,11 @@
             android:label="@string/title_activity_user_select"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
+        <activity android:name=".ServerConfigActivity"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
+            android:icon="@drawable/ic_menu_home"
+            android:parentActivityName=".MainActivity"
+            android:label="Config Server" />
 
         <receiver
             android:name=".gcm.GCMBroadcastReceiver"

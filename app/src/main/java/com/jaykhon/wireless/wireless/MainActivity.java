@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
-    private CharSequence mTitle;
+    public static CharSequence mTitle = "Wireless";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        //mTitle = getTitle();
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -117,6 +118,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
                     .replace(R.id.container, new MainActivityFragment())
                     .commit();
         }
+        invalidateOptionsMenu();
     }
 
     public void restoreActionBar() {
@@ -129,15 +131,9 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.main_with_home, menu);
+        restoreActionBar();
+        return true;
     }
 
     @Override
@@ -157,6 +153,10 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new MainActivityFragment())
                     .commit();
+        }else if (id == R.id.config_server){
+            Intent intent = new Intent(this, ServerConfigActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -171,6 +171,18 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
          * fragment.
          */
         public MainActivityFragment() {
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            super.onCreateOptionsMenu(menu, inflater);
+            menu.clear();
+            inflater.inflate(R.menu.main, menu);
+            ActionBar actionBar = getActivity().getActionBar();
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setTitle(MainActivity.mTitle);
         }
 
         @Override
