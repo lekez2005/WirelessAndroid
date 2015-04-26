@@ -5,8 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -83,6 +83,8 @@ public class GCMIntentService extends IntentService {
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
+        long[] pattern = {500,500,500,500,500,500,500,500,500};
+
         String message = extras.getString(MESSAGE, "Detector " + extras.getString(IDENTIFIER, "") + " triggered");
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
@@ -92,9 +94,12 @@ public class GCMIntentService extends IntentService {
                                         .bigText(message))
                                 .setPriority(NotificationCompat.PRIORITY_MAX)
                                 .setAutoCancel(true)
-                                .setContentText(message);
+                                .setVibrate(pattern)
+        .setContentText(message);
 
         mBuilder.setContentIntent(contentIntent);
+        Uri sound = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.alarm);
+        mBuilder.setSound(sound);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
 }
