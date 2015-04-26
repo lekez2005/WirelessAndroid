@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaykhon.wireless.wireless.authorize.UserSelectActivity;
 import com.jaykhon.wireless.wireless.devices.alarm.AlarmFragment;
@@ -67,6 +68,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        updateDeviceList();
 
         Intent i = getIntent();
         replaceFragment(i.getStringExtra(DEVICE_KEY), i.getStringExtra(IDENTIFIER_KEY));
@@ -157,9 +159,40 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
             Intent intent = new Intent(this, ServerConfigActivity.class);
             startActivity(intent);
             return true;
+        }else if (id == R.id.refresh_server){
+            Toast.makeText(this, "Refreshing Server", Toast.LENGTH_SHORT).show();
+            updateDeviceList();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void updateDeviceList() {
+
+        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
+            @Override
+            public JSONObject execute() {
+                String url = WirelessApp.getBaseUrl() + "modules";
+                return SendRequest.getJsonFromUrl(url, null);
+            }
+        }, new ResultListener<JSONObject>() {
+            @Override
+            public void onResultsSucceded(JSONObject result) {
+                if (result != null) {
+                    WirelessApp.setmDevices(result);
+                    WirelessApp.setLastConnectionSuccess(true);
+                    Toast.makeText(getApplicationContext(), "Refreshed!", Toast.LENGTH_SHORT).show();
+                    mNavigationDrawerFragment.onReload();
+                }else {
+                    Toast.makeText(getApplicationContext(), "Refresh Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResultsFail() {
+            }
+        }, getApplicationContext()).execute();
     }
 
     /**
@@ -245,5 +278,6 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
             super.onAttach(activity);
         }
     }
+
 
 }

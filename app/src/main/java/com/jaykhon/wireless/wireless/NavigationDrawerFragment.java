@@ -43,7 +43,7 @@ import java.util.Map;
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment implements ReloadCallback {
 
     /**
      * Remember the position of the selected item.
@@ -338,47 +338,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
-        if (item.getItemId() == R.id.refresh_server) {
-            Toast.makeText(getActivity(), "Refreshing Server", Toast.LENGTH_SHORT).show();
-            updateDeviceList();
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    public void updateDeviceList() {
-
-        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
-            @Override
-            public JSONObject execute() {
-                try {
-                    String url = WirelessApp.getBaseUrl() + "modules";
-                    return SendRequest.getJsonFromUrl(url, null);
-                } catch (Exception e) {
-                    Dialogs.makeSingleButton(getActivity(), e.getMessage()); // TODO this is for debug only
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        }, new ResultListener<JSONObject>() {
-            @Override
-            public void onResultsSucceded(JSONObject result) {
-                if (result != null) {
-                    WirelessApp.setmDevices(result);
-                    WirelessApp.setLastConnectionSuccess(true);
-                    Toast.makeText(getActivity(), "Refreshed!", Toast.LENGTH_SHORT).show();
-                    setAdapter();
-                }else{
-                    Toast.makeText(getActivity(), "Refresh failed", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onResultsFail() {
-            }
-        }, getActivity()).execute();
     }
 
     /**
@@ -390,6 +350,11 @@ public class NavigationDrawerFragment extends Fragment {
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setTitle(R.string.app_name);
+    }
+
+    @Override
+    public void onReload() {
+        setAdapter();
     }
 
 

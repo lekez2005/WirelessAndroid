@@ -1,6 +1,7 @@
 package com.jaykhon.wireless.wireless;
 
 import android.app.Application;
+import android.widget.Toast;
 
 import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
@@ -32,7 +33,7 @@ public class WirelessApp extends Application {
     private String IP_address;
     private String PORT;
 
-    public WirelessApp getInstance() {
+    public static WirelessApp getInstance() {
         return sInstance;
     }
 
@@ -72,28 +73,7 @@ public class WirelessApp extends Application {
         mDevices = obj;
     }
 
-    public static void updateDeviceList() {
 
-        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
-            @Override
-            public JSONObject execute() {
-                String url = getBaseUrl() + "modules";
-                return SendRequest.getJsonFromUrl(url, null);
-            }
-        }, new ResultListener<JSONObject>() {
-            @Override
-            public void onResultsSucceded(JSONObject result) {
-                if (result != null) {
-                    mDevices = result;
-                    lastConnection = true;
-                }
-            }
-
-            @Override
-            public void onResultsFail() {
-            }
-        }, sInstance.getApplicationContext()).execute();
-    }
 
     public static boolean pingServer() {
         return false;
