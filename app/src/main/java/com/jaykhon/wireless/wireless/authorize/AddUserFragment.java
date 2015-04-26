@@ -2,6 +2,7 @@ package com.jaykhon.wireless.wireless.authorize;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -72,7 +73,7 @@ public class AddUserFragment extends Fragment {
         selectUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCallback.onSwitchFragment(UserSelectActivity.SELECT_USER);
+                mCallback.onSwitchFragment(UserSelectActivity.SELECT_USER, null);
             }
         });
 
@@ -104,6 +105,8 @@ public class AddUserFragment extends Fragment {
                         String status = result.getString("Status");
                         if (status.equals("OK")){
                             Toast.makeText(getActivity(), "User Created", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getActivity(), UserSelectActivity.class);
+                            startActivity(intent);
                         }else{
                             Toast.makeText(getActivity(), result.getString("error"), Toast.LENGTH_SHORT).show();
                         }

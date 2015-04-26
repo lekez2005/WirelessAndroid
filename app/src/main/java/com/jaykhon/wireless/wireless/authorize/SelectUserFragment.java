@@ -42,6 +42,7 @@ public class SelectUserFragment  extends Fragment{
     private ArrayAdapter<CharSequence> spinnerAdapter;
     private Button switchButton;
     private Button addUserButton;
+    private Button editUserButton;
 
 
     private ArrayList<String> userIds;
@@ -80,13 +81,25 @@ public class SelectUserFragment  extends Fragment{
             }
         });
 
+        editUserButton = (Button) rootView.findViewById(R.id.edit_user_button);
+        editUserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (! spinnerAdapter.isEmpty()){
+                    int pos = usersSpinner.getSelectedItemPosition();
+                    String user = userIds.get(pos);
+                    mCallback.onSwitchFragment(UserSelectActivity.EDIT_USER, user);
+                }
+            }
+        });
+
 
 
         addUserButton = (Button) rootView.findViewById(R.id.add_user_button);
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCallback.onSwitchFragment(UserSelectActivity.ADD_USER);
+                mCallback.onSwitchFragment(UserSelectActivity.ADD_USER, null);
             }
         });
 

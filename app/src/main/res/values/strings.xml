@@ -12,8 +12,9 @@
     <string name="home">Home</string>
 
     <string name="action_select_user">Select User</string>
-    <string name="switch_user_text">Switch</string>
+    <string name="switch_user_text">Switch To</string>
     <string name="authorize_string">Authorize</string>
     <string name="save_text">Save</string>
-    <string name="add_user_string">Add User</string>
+    <string name="add_user_string">Create User</string>
+    <string name="edit_user_string">Edit User</string>
 </resources>

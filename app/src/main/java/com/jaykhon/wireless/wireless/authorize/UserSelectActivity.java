@@ -48,6 +48,7 @@ public class UserSelectActivity extends Activity implements OnSwitchFragmentList
 
     public static final String SELECT_USER = "select_user";
     public static final String ADD_USER = "add_user";
+    public static final String EDIT_USER = "edit_user";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +91,7 @@ public class UserSelectActivity extends Activity implements OnSwitchFragmentList
     }
 
     @Override
-    public void onSwitchFragment(String newFrag) {
+    public void onSwitchFragment(String newFrag, String user) {
         switch(newFrag){
             case SELECT_USER:
                 getFragmentManager().beginTransaction()
@@ -104,6 +105,15 @@ public class UserSelectActivity extends Activity implements OnSwitchFragmentList
                         .addToBackStack(null)
                         .commit();
                 break;
+            case EDIT_USER:
+                Bundle args = new Bundle();
+                args.putString(EditUserFragment.IDENTIFIER_ARG, user);
+                EditUserFragment frag = new EditUserFragment();
+                frag.setArguments(args);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, frag)
+                        .addToBackStack(null)
+                        .commit();
 
         }
 
