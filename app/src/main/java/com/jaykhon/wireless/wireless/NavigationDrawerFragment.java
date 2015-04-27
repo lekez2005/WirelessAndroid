@@ -162,7 +162,8 @@ public class NavigationDrawerFragment extends Fragment implements ReloadCallback
                         if (device != null){
                             int len = device.length();
                             for (int i=0; i<len; i++){
-                                final String subdevice = (device.getJSONArray(i)).getString(1);
+                                JSONObject obj = device.getJSONObject(i);
+                                final String subdevice = obj.getString("pretty_name");
                                 add(new HashMap<String, String>() {{
                                     put("CHILD_NAME", subdevice);
                                 }});

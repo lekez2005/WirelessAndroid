@@ -23,8 +23,8 @@ public class Json {
         String childIdentifier = null;
         try {
             JSONArray childObjects = devices.getJSONArray(deviceType);
-            JSONArray childObject = childObjects.getJSONArray(childPosition);
-            childIdentifier = childObject.getString(0);
+            JSONObject childObject = childObjects.getJSONObject(childPosition);
+            childIdentifier = childObject.getString("identifier");
         } catch (JSONException e) {
             e.printStackTrace();
         }

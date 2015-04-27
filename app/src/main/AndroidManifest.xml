@@ -49,6 +49,11 @@
             android:icon="@drawable/ic_menu_home"
             android:parentActivityName=".MainActivity"
             android:label="Config Server" />
+        <activity android:name=".AssociationActivity"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
+            android:icon="@drawable/ic_menu_home"
+            android:parentActivityName=".MainActivity"
+            android:label="Associate Devices" />
 
         <receiver
             android:name=".gcm.GCMBroadcastReceiver"

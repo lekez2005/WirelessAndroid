@@ -51,6 +51,10 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
     public static final String DEVICE_KEY = "device";
     public static final String IDENTIFIER_KEY = "identifier";
 
+    public static final String IDENTIFIER = "identifier";
+    public static final String PRETTY_NAME = "pretty_name";
+
+
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -166,6 +170,10 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
         }else if (id == R.id.refresh_server){
             Toast.makeText(this, "Refreshing Server", Toast.LENGTH_SHORT).show();
             updateDeviceList();
+            return true;
+        }else if (id == R.id.associate){
+            Intent intent = new Intent(this, AssociationActivity.class);
+            startActivity(intent);
             return true;
         }
 

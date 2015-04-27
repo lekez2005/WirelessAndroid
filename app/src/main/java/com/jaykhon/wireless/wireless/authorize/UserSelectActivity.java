@@ -27,8 +27,10 @@ import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 
+import com.jaykhon.wireless.wireless.AssociationActivity;
 import com.jaykhon.wireless.wireless.MainActivity;
 import com.jaykhon.wireless.wireless.R;
+import com.jaykhon.wireless.wireless.ServerConfigActivity;
 import com.jaykhon.wireless.wireless.WirelessApp;
 import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
@@ -85,6 +87,14 @@ public class UserSelectActivity extends Activity implements OnSwitchFragmentList
             case android.R.id.home:
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.config_server:
+                Intent i = new Intent(this, ServerConfigActivity.class);
+                startActivity(i);
+                return true;
+            case R.id.associate:
+                Intent i2 = new Intent(this, AssociationActivity.class);
+                startActivity(i2);
                 return true;
         }
         return super.onOptionsItemSelected(menuItem);

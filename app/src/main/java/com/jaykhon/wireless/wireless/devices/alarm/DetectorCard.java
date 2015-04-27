@@ -34,8 +34,8 @@ public class DetectorCard extends CardView {
         super(context);
         fragment = f;
         LayoutInflater.from(context).inflate(R.layout.alarm_detector_card, this);
-        prettyNameView = (TextView) findViewById(R.id.detector_view);
-        deleteButton = (ImageButton) findViewById(R.id.deleteButton);
+        prettyNameView = (TextView) findViewById(R.id.name_view);
+        deleteButton = (ImageButton) findViewById(R.id.delete_button);
 
         deleteButton.setOnClickListener(new OnClickListener() {
             @Override

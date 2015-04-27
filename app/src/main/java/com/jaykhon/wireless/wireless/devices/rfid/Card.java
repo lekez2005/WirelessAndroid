@@ -80,7 +80,7 @@ public class Card extends LinearLayout {
         descriptionEdit = (EditText) findViewById(R.id.descriptionEdit);
         activeSwitch = (Switch) findViewById(R.id.activeSwitch);
         updateButton = (Button) findViewById(R.id.saveButton);
-        deleteButton = (Button) findViewById(R.id.deleteButton);
+        deleteButton = (Button) findViewById(R.id.delete_button);
 
         activeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

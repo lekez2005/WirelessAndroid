@@ -17,4 +17,5 @@
     <string name="save_text">Save</string>
     <string name="add_user_string">Create User</string>
     <string name="edit_user_string">Edit User</string>
+    <string name="associate_decices">Associate Devices</string>
 </resources>

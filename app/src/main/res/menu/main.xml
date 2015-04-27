@@ -8,6 +8,9 @@
     <item android:id="@+id/config_server"
         android:title="Config Server"
         android:showAsAction="never" />
+    <item android:id="@+id/associate" android:title="@string/associate_decices"
+        android:showAsAction="never" />
     <item android:id="@+id/select_user" android:title="@string/action_select_user"
         android:orderInCategory="100" android:showAsAction="never" />
+
 </menu>
