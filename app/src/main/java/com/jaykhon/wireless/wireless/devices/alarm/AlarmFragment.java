@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +44,7 @@ public class AlarmFragment extends Fragment {
     private Button updateButton;
     private Button ringButton;
     private Button stopButton;
+    private Switch activeSwitch;
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager recyclerManager;
@@ -61,6 +63,7 @@ public class AlarmFragment extends Fragment {
     public static final String PRETTY_KEY = "pretty_name";
     public static final String DESC_KEY = "description";
     public static final String DETECTOR_KEY = "detectors";
+    public static final String ACTIVE_KEY = "active";
 
     public static AlarmFragment newInstance(String param1) {
         AlarmFragment fragment = new AlarmFragment();
@@ -122,6 +125,7 @@ public class AlarmFragment extends Fragment {
                 ring(false);
             }
         });
+        activeSwitch = (Switch) view.findViewById(R.id.active_switch);
 
         pairedDetectors = new HashMap<>();
         unpairedDetectors = new HashMap<>();
@@ -171,6 +175,7 @@ public class AlarmFragment extends Fragment {
                     obj.put(ID_KEY, identifierView.getText().toString());
                     obj.put(PRETTY_KEY, prettyNameEdit.getText().toString());
                     obj.put(DESC_KEY, descriptionEdit.getText().toString());
+                    obj.put(ACTIVE_KEY, activeSwitch.isChecked());
                     return SendRequest.postJsonToUrl(url, obj, null);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -332,6 +337,7 @@ public class AlarmFragment extends Fragment {
                         identifierView.setText(result.getString(ID_KEY));
                         prettyNameEdit.setText(result.getString(PRETTY_KEY));
                         descriptionEdit.setText(result.getString(DESC_KEY));
+                        activeSwitch.setChecked(result.getBoolean(ACTIVE_KEY));
 
                         parseDetectors(result.getJSONArray(DETECTOR_KEY));
 
