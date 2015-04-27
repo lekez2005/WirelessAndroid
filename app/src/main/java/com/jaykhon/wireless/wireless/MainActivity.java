@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.jaykhon.wireless.wireless.authorize.UserSelectActivity;
 import com.jaykhon.wireless.wireless.devices.alarm.AlarmFragment;
+import com.jaykhon.wireless.wireless.devices.detector.DetectorFragment;
 import com.jaykhon.wireless.wireless.devices.door.DoorFragment;
 import com.jaykhon.wireless.wireless.devices.rfid.RfidFragment;
 import com.jaykhon.wireless.wireless.connect.Async;
@@ -95,23 +96,26 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, RfidFragment.newInstance(identifier))
-                    .addToBackStack(null)
                     .commit();
 
-        }else if ("door".equals(deviceType) ||"detector".equals(deviceType)){
+        }else if ("door".equals(deviceType)){
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, DoorFragment.newInstance(identifier))
-                    .addToBackStack(null)
                     .commit();
 
         }else if ("alarm".equals(deviceType)){
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, AlarmFragment.newInstance(identifier))
-                    .addToBackStack(null)
                     .commit();
-        }else{
+        }else if("detector".equals(deviceType)){
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, DetectorFragment.newInstance(identifier))
+                    .commit();
+        }
+        else{
             Dialogs.makeSingleButton(MainActivity.this,
                     String.format("Parent: %s Child: %s\n Implement other devices", deviceType, identifier));
             //Dialogs.makeSingleButton(MainActivity.this, "devices null WHOA");
