@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jaykhon.wireless.wireless.devices.rfid.Card;
+import com.jaykhon.wireless.wireless.devices.ReloadFragment;
 import com.jaykhon.wireless.wireless.R;
 import com.jaykhon.wireless.wireless.WirelessApp;
 import com.jaykhon.wireless.wireless.connect.Async;
@@ -23,7 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class DoorFragment extends Fragment implements Card.ReloadRfidFragment {
+public class DoorFragment extends Fragment implements ReloadFragment {
 
     private static final String identifierArg = "identifier";
 

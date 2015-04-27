@@ -21,6 +21,7 @@ import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
 import com.jaykhon.wireless.wireless.connect.ResultListener;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
+import com.jaykhon.wireless.wireless.devices.ReloadFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +32,7 @@ import org.json.JSONObject;
 public class Card extends LinearLayout {
 
     private Context mContext;
-    ReloadRfidFragment reloader;
+    ReloadFragment reloader;
 
     private TextView identifierView;
     private EditText prettyNameEdit;
@@ -280,13 +281,6 @@ public class Card extends LinearLayout {
             state = bundle.getParcelable(INSTANCE_BUNDLE);
         }
         super.onRestoreInstanceState(state);
-    }
-
-    public static interface ReloadRfidFragment {
-        /**
-         * Called when an item in the navigation drawer is selected.
-         */
-        void reload();
     }
 
 }

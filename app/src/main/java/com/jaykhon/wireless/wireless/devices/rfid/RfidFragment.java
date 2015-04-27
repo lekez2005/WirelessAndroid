@@ -15,13 +15,14 @@ import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
 import com.jaykhon.wireless.wireless.connect.ResultListener;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
+import com.jaykhon.wireless.wireless.devices.ReloadFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class RfidFragment extends Fragment implements Card.ReloadRfidFragment {
+public class RfidFragment extends Fragment implements ReloadFragment {
 
     private LinearLayout cardLayout;
 
