@@ -137,7 +137,7 @@ public class NavigationDrawerFragment extends Fragment implements ReloadCallback
 
     private void setAdapter() {
         JSONObject devices = WirelessApp.getDevices();
-        if (devices == null) {
+        if (devices == null || ! isAdded()) {
             Log.d("Set Adapter", "List empty");
             //TODO indicate this somehow
         } else {

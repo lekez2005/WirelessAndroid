@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,13 +27,13 @@ import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
 import com.jaykhon.wireless.wireless.connect.ResultListener;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
+import com.jaykhon.wireless.wireless.utils.Json;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by lekez2005 on 4/27/15.
@@ -53,11 +54,8 @@ public class AssociationActivity extends Activity {
     RecyclerView associated;
     RecycleAdapter recycleAdapter;
     private RecyclerView.LayoutManager recyclerManager;
-    HashMap<String, String> allDevices;
-    HashMap<String, String> pairedDevices;
-    HashMap<String, String> unpairedDevices;
+    ArrayList<JSONObject> pairedDevices;
     ArrayList<String> unpairedIdentifiers;
-    ArrayList<String> unpairedNames;
 
 
     @Override
@@ -66,11 +64,8 @@ public class AssociationActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_association);
 
-        allDevices = new HashMap<>();
-        pairedDevices = new HashMap<>();
-        unpairedDevices = new HashMap<>();
+        pairedDevices = new ArrayList<>();
         unpairedIdentifiers = new ArrayList<>();
-        unpairedNames = new ArrayList<>();
 
         fromDevice = (Spinner) findViewById(R.id.from_device);
         fromDeviceAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_dropdown_item);
@@ -80,17 +75,10 @@ public class AssociationActivity extends Activity {
         fromDevice.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == parent.getSelectedItemPosition() && ! allDevices.isEmpty()){
-                    return;
-                }else {
-                    String selected = parent.getItemAtPosition(position).toString();
-                    if (selected == ALARM){
-                        Toast.makeText(getApplicationContext(), "Alarm", Toast.LENGTH_SHORT).show();
-                    }else {
-                        Toast.makeText(getApplicationContext(), "Detector", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                String selected = parent.getItemAtPosition(position).toString();
+                selectDevice(selected);
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -98,9 +86,35 @@ public class AssociationActivity extends Activity {
         });
 
         fromIdentifier = (Spinner) findViewById(R.id.from_identifier);
+        fromIdentifierAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_dropdown_item);
+        fromIdentifierAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        fromIdentifier.setAdapter(fromIdentifierAdapter);
+        fromIdentifier.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                populateUnpaired();
+                populatePaired();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         toIdentifier = (Spinner) findViewById(R.id.to_identifier);
+        toIdentifierAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_dropdown_item);
+        toIdentifierAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        toIdentifier.setAdapter(toIdentifierAdapter);
+
 
         associateButton = (Button) findViewById(R.id.associate_button);
+        associateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                associate();
+            }
+        });
 
 
 
@@ -110,6 +124,160 @@ public class AssociationActivity extends Activity {
         recycleAdapter = new RecycleAdapter(this, pairedDevices);
         associated.setAdapter(recycleAdapter);
 
+    }
+
+    private void selectDevice(String device){
+        JSONObject devices = WirelessApp.getDevices();
+        if (devices == null)
+            return;
+        try {
+            JSONArray selected = new JSONArray();
+            if ("Detector".equals(device)){
+                selected = devices.getJSONArray(Json.DETECTOR);
+            }else if ("Alarm".equals(device)){
+                selected = devices.getJSONArray(Json.ALARM);
+            }
+            fromIdentifierAdapter.clear();
+            for (int i = 0; i< selected.length(); i++){
+                fromIdentifierAdapter.add((selected.getJSONObject(i)).getString(Json.PRETTY_NAME));
+            }
+            populateUnpaired();
+            populatePaired();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void populateUnpaired(){
+        JSONObject devices = WirelessApp.getDevices();
+        if (devices == null)
+            return;
+        String selectedDeviceType = fromDevice.getSelectedItem().toString();
+        int selectedIdentifierPosition = fromIdentifier.getSelectedItemPosition();
+
+        try {
+            JSONArray allPairable = new JSONArray();
+            JSONArray paired = new JSONArray();
+            if ("Detector".equals(selectedDeviceType)){
+                allPairable = devices.getJSONArray(Json.ALARM);
+                JSONObject selectedDevice = (devices.getJSONArray(Json.DETECTOR))
+                        .getJSONObject(selectedIdentifierPosition);
+                paired = selectedDevice.getJSONArray(Json.ALARMS);
+
+            }else if ("Alarm".equals(selectedDeviceType)){
+                allPairable = devices.getJSONArray(Json.DETECTOR);
+                JSONObject selectedDevice = (devices.getJSONArray(Json.ALARM))
+                        .getJSONObject(selectedIdentifierPosition);
+                paired = selectedDevice.getJSONArray(Json.DETECTORS);
+            }
+            toIdentifierAdapter.clear();
+            unpairedIdentifiers.clear();
+            for (int i = 0; i < allPairable.length(); i++){
+                boolean alreadyPaired = false;
+                JSONObject potentialPair = allPairable.getJSONObject(i);
+                for (int j = 0; j< paired.length(); j++){
+                    if (potentialPair.getString(Json.IDENTIFIER)
+                            .equals(paired.getString(j))){
+                        alreadyPaired = true;
+                    }
+                }
+                 if (! alreadyPaired){
+                     toIdentifierAdapter.add(potentialPair.getString(Json.PRETTY_NAME));
+                     unpairedIdentifiers.add(potentialPair.getString(Json.IDENTIFIER));
+                 }
+            }
+            toIdentifierAdapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void populatePaired(){
+        JSONObject devices = WirelessApp.getDevices();
+        if (devices == null)
+            return;
+        String selectedDeviceType = fromDevice.getSelectedItem().toString();
+        int selectedIdentifierPosition = fromIdentifier.getSelectedItemPosition();
+
+        try {
+            JSONArray allPairable = new JSONArray();
+            JSONArray paired = new JSONArray();
+            if ("Detector".equals(selectedDeviceType)){
+                allPairable = devices.getJSONArray(Json.ALARM);
+                JSONObject selectedDevice = (devices.getJSONArray(Json.DETECTOR))
+                        .getJSONObject(selectedIdentifierPosition);
+                paired = selectedDevice.getJSONArray(Json.ALARMS);
+
+            }else if ("Alarm".equals(selectedDeviceType)){
+                allPairable = devices.getJSONArray(Json.DETECTOR);
+                JSONObject selectedDevice = (devices.getJSONArray(Json.ALARM))
+                        .getJSONObject(selectedIdentifierPosition);
+                paired = selectedDevice.getJSONArray(Json.DETECTORS);
+            }
+            pairedDevices.clear();
+
+            for (int i = 0; i < allPairable.length(); i++){
+
+                if (! unpairedIdentifiers.contains(allPairable.getJSONObject(i).getString(Json.IDENTIFIER))){
+                    pairedDevices.add(allPairable.getJSONObject(i));
+                }
+            }
+            recycleAdapter.setPairedDevices(pairedDevices);
+            recycleAdapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void associate(){
+        JSONObject devices = WirelessApp.getDevices();
+        if (devices == null || fromIdentifier.getSelectedItemPosition() == AdapterView.INVALID_POSITION ||
+                toIdentifier.getSelectedItemPosition() == AdapterView.INVALID_POSITION)
+            return;
+        String selected = fromDevice.getSelectedItem().toString();
+        final JSONObject data = new JSONObject();
+        String url = WirelessApp.getBaseUrl();
+        try {
+
+            if ("Detector".equals(selected)){
+                url+="detector/add/alarm";
+                JSONObject detector = devices.getJSONArray(Json.DETECTOR)
+                        .getJSONObject(fromIdentifier.getSelectedItemPosition());
+                data.put(Json.IDENTIFIER, detector.getString(Json.IDENTIFIER));
+                data.put(Json.ALARM, unpairedIdentifiers.get(toIdentifier.getSelectedItemPosition()));
+            } else if ("Alarm".equals(selected)){
+                url+="alarm/add/detector";
+                JSONObject alarm = devices.getJSONArray(Json.ALARM)
+                        .getJSONObject(fromIdentifier.getSelectedItemPosition());
+                data.put(Json.IDENTIFIER, alarm.getString(Json.IDENTIFIER));
+                data.put(Json.DETECTOR, unpairedIdentifiers.get(toIdentifier.getSelectedItemPosition()));
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final String u = url;
+        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
+            @Override
+            public JSONObject execute() {
+                return SendRequest.postJsonToUrl(u, data, null);
+            }
+        }, new ResultListener<JSONObject>() {
+            @Override
+            public void onResultsSucceded(JSONObject result) {
+                if (result != null) {
+                    reload();
+                }else {
+                    Toast.makeText(getApplicationContext(), "Association failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResultsFail() {
+            }
+        }, getApplicationContext()).execute();
     }
 
     @Override
@@ -127,7 +295,29 @@ public class AssociationActivity extends Activity {
     }
 
     public void reload(){
+        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
+            @Override
+            public JSONObject execute() {
+                String url = WirelessApp.getBaseUrl() + "modules";
+                return SendRequest.getJsonFromUrl(url, null);
+            }
+        }, new ResultListener<JSONObject>() {
+            @Override
+            public void onResultsSucceded(JSONObject result) {
+                if (result != null) {
+                    WirelessApp.setmDevices(result);
+                    WirelessApp.setLastConnectionSuccess(true);
+                    populateUnpaired();
+                    populatePaired();
+                }else {
+                    Toast.makeText(getApplicationContext(), "Refresh Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
 
+            @Override
+            public void onResultsFail() {
+            }
+        }, getApplicationContext()).execute();
     }
 
     @Override
@@ -156,9 +346,7 @@ public class AssociationActivity extends Activity {
 
     public class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.ViewHolder> {
 
-        private HashMap<String, String> devices;
-        private ArrayList<String> identifiers;
-        private ArrayList<String> names;
+        private ArrayList<JSONObject> paired;
         private Context context;
 
         public class ViewHolder extends RecyclerView.ViewHolder{
@@ -169,21 +357,13 @@ public class AssociationActivity extends Activity {
             }
         }
 
-        public RecycleAdapter(Context mContext, HashMap<String, String> pairedDevices){
-            identifiers = new ArrayList<>();
-            names = new ArrayList<>();
-            setDevices(pairedDevices);
-            context = mContext;
+        public void setPairedDevices(ArrayList<JSONObject> pairedDevices){
+            this.paired = pairedDevices;
         }
 
-        public void setDevices(HashMap<String, String> d){
-            devices = d;
-            identifiers.clear();
-            names.clear();
-            for (Map.Entry<String, String> entry: devices.entrySet()){
-                identifiers.add(entry.getKey());
-                names.add(entry.getValue());
-            }
+        public RecycleAdapter(Context mContext, ArrayList<JSONObject> pairedDevices){
+            this.paired = pairedDevices;
+            context = mContext;
         }
 
         @Override
@@ -195,12 +375,17 @@ public class AssociationActivity extends Activity {
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position){
-            viewHolder.card.updateDevice(identifiers.get(position), names.get(position));
+            try {
+                viewHolder.card.updateDevice(paired.get(position).getString(Json.IDENTIFIER),
+                        paired.get(position).getString(Json.PRETTY_NAME));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         public int getItemCount(){
-            return devices.size();
+            return paired.size();
         }
     }
 
@@ -209,8 +394,8 @@ public class AssociationActivity extends Activity {
         public TextView prettyNameView;
         private ImageButton deleteButton;
 
-        private String detectorIdentifier;
-        private String detectorName;
+        private String deviceIdentifier;
+        private String deviceName;
 
         public DeviceCard(final Context context){
             super(context);
@@ -227,21 +412,45 @@ public class AssociationActivity extends Activity {
         }
 
         public void updateDevice(String identifier, String name){
-            detectorIdentifier = identifier;
-            detectorName = name;
-            prettyNameView.setText(detectorName);
+            deviceIdentifier = identifier;
+            deviceName = name;
+            prettyNameView.setText(deviceName);
         }
 
         private void removeDevice(){
-            final String url = WirelessApp.getBaseUrl() + "alarmds/remove/detector";
+
+            JSONObject devices = WirelessApp.getDevices();
+            if (devices == null || fromIdentifier.getSelectedItemPosition() == AdapterView.INVALID_POSITION)
+                return;
+            String selected = fromDevice.getSelectedItem().toString();
+            final JSONObject data = new JSONObject();
+            String url = WirelessApp.getBaseUrl();
+            try {
+
+                if ("Detector".equals(selected)){
+                    url+="detector/remove/alarm";
+                    JSONObject detector = devices.getJSONArray(Json.DETECTOR)
+                            .getJSONObject(fromIdentifier.getSelectedItemPosition());
+                    data.put(Json.IDENTIFIER, detector.getString(Json.IDENTIFIER));
+                    data.put(Json.ALARM, deviceIdentifier);
+                } else if ("Alarm".equals(selected)){
+                    url+="alarm/remove/detector";
+                    JSONObject alarm = devices.getJSONArray(Json.ALARM)
+                            .getJSONObject(fromIdentifier.getSelectedItemPosition());
+                    data.put(Json.IDENTIFIER, alarm.getString(Json.IDENTIFIER));
+                    data.put(Json.DETECTOR, deviceIdentifier);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            final String u = url;
             new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
                 @Override
                 public JSONObject execute() {
-                    try { //TODO fix this
-                        JSONObject obj = new JSONObject();
-                        obj.put("identifier", "identifier");
-                        obj.put("detector", detectorIdentifier);
-                        return SendRequest.postJsonToUrl(url, obj, null);
+                    try {
+                        return SendRequest.postJsonToUrl(u, data, null);
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;
@@ -255,6 +464,7 @@ public class AssociationActivity extends Activity {
                             String status = result.getString("Status");
                             if (status.equals("OK")){
                                 Toast.makeText(getApplicationContext(), "Removed", Toast.LENGTH_SHORT).show();
+                                reload();
                             }else{
                                 Toast.makeText(getApplicationContext(), result.getString("error"), Toast.LENGTH_SHORT).show();
                             }

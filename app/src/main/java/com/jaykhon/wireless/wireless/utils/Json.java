@@ -10,6 +10,18 @@ import java.util.Iterator;
  * Created by lekez2005 on 3/19/15.
  */
 public class Json {
+
+    public static final String IDENTIFIER = "identifier";
+    public static final String PRETTY_NAME = "pretty_name";
+    public static final String ADDRESS = "address";
+    public static final String ACTIVE = "active";
+    public static final String DESCRIPTION = "description";
+    public static final String ALARM = "alarm";
+    public static final String ALARMS = "alarms";
+    public static final String DETECTOR = "detector";
+    public static final String DETECTORS = "detectors";
+
+
     public static String[] getIdentifiersFromJson(int parentPosition, int childPosition, JSONObject devices){
         String deviceType = null;
         Iterator<String> it = devices.keys();
@@ -24,7 +36,7 @@ public class Json {
         try {
             JSONArray childObjects = devices.getJSONArray(deviceType);
             JSONObject childObject = childObjects.getJSONObject(childPosition);
-            childIdentifier = childObject.getString("identifier");
+            childIdentifier = childObject.getString(IDENTIFIER);
         } catch (JSONException e) {
             e.printStackTrace();
         }
