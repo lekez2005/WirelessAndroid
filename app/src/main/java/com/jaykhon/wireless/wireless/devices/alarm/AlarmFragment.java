@@ -23,6 +23,7 @@ import com.jaykhon.wireless.wireless.connect.Async;
 import com.jaykhon.wireless.wireless.connect.Command;
 import com.jaykhon.wireless.wireless.connect.ResultListener;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
+import com.jaykhon.wireless.wireless.utils.Json;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,24 +47,6 @@ public class AlarmFragment extends Fragment {
     private Button stopButton;
     private Switch activeSwitch;
 
-    private RecyclerView recyclerView;
-    private RecyclerView.LayoutManager recyclerManager;
-    private RecycleAdapter recycleAdapter;
-
-    private Spinner spinner;
-    ArrayAdapter<CharSequence> spinnerAdapter;
-    HashMap<String, String> pairedDetectors;
-    HashMap<String, String> unpairedDetectors;
-    private ArrayList<String> unpairedIdentifiers;
-    private ArrayList<String> unpairedNames;
-
-    private ImageButton addButton;
-
-    public static final String ID_KEY = "identifier";
-    public static final String PRETTY_KEY = "pretty_name";
-    public static final String DESC_KEY = "description";
-    public static final String DETECTOR_KEY = "detectors";
-    public static final String ACTIVE_KEY = "active";
 
     public static AlarmFragment newInstance(String param1) {
         AlarmFragment fragment = new AlarmFragment();
@@ -90,9 +73,9 @@ public class AlarmFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (outState != null){
-            outState.putString(ID_KEY, identifierView.getText().toString());
-            outState.putString(PRETTY_KEY, prettyNameEdit.getText().toString());
-            outState.putString(DESC_KEY, descriptionEdit.getText().toString());
+            outState.putString(Json.IDENTIFIER, identifierView.getText().toString());
+            outState.putString(Json.PRETTY_NAME, prettyNameEdit.getText().toString());
+            outState.putString(Json.DESCRIPTION, descriptionEdit.getText().toString());
         }
     }
 
@@ -127,37 +110,11 @@ public class AlarmFragment extends Fragment {
         });
         activeSwitch = (Switch) view.findViewById(R.id.active_switch);
 
-        pairedDetectors = new HashMap<>();
-        unpairedDetectors = new HashMap<>();
-        unpairedIdentifiers = new ArrayList<>();
-        unpairedNames = new ArrayList<>();
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        recyclerManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(recyclerManager);
-        recycleAdapter = new RecycleAdapter(getActivity(), pairedDetectors, this);
-        recyclerView.setAdapter(recycleAdapter);
-
-
-
-        spinner = (Spinner) view.findViewById(R.id.spinner);
-        spinnerAdapter = new ArrayAdapter<CharSequence>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerAdapter);
-
-        addButton = (ImageButton) view.findViewById(R.id.add_button);
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addDetector();
-            }
-        });
-
-        if (savedInstanceState!= null && savedInstanceState.containsKey(ID_KEY)){
-            identifierView.setText(savedInstanceState.getString(ID_KEY));
-            prettyNameEdit.setText(savedInstanceState.getString(PRETTY_KEY));
-            descriptionEdit.setText(savedInstanceState.getString(DESC_KEY));
+        if (savedInstanceState!= null && savedInstanceState.containsKey(Json.IDENTIFIER)){
+            identifierView.setText(savedInstanceState.getString(Json.IDENTIFIER));
+            prettyNameEdit.setText(savedInstanceState.getString(Json.PRETTY_NAME));
+            descriptionEdit.setText(savedInstanceState.getString(Json.DESCRIPTION));
         }else{
             reload();
         }
@@ -172,10 +129,10 @@ public class AlarmFragment extends Fragment {
             public JSONObject execute() {
                 try {
                     JSONObject obj = new JSONObject();
-                    obj.put(ID_KEY, identifierView.getText().toString());
-                    obj.put(PRETTY_KEY, prettyNameEdit.getText().toString());
-                    obj.put(DESC_KEY, descriptionEdit.getText().toString());
-                    obj.put(ACTIVE_KEY, activeSwitch.isChecked());
+                    obj.put(Json.IDENTIFIER, identifierView.getText().toString());
+                    obj.put(Json.PRETTY_NAME, prettyNameEdit.getText().toString());
+                    obj.put(Json.DESCRIPTION, descriptionEdit.getText().toString());
+                    obj.put(Json.ACTIVE, activeSwitch.isChecked());
                     return SendRequest.postJsonToUrl(url, obj, null);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -254,54 +211,6 @@ public class AlarmFragment extends Fragment {
         }, getActivity()).execute();
     }
 
-    private void addDetector(){
-        final String selected = unpairedIdentifiers.get(spinner.getSelectedItemPosition());
-
-        final String url = WirelessApp.getBaseUrl() + "alarm/add/detector";
-        new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
-            @Override
-            public JSONObject execute() {
-                try {
-                    JSONObject obj = new JSONObject();
-                    obj.put(AlarmFragment.ID_KEY, identifier);
-                    obj.put("detector", selected);
-                    return SendRequest.postJsonToUrl(url, obj, null);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        }, new ResultListener<JSONObject>() {
-            @Override
-            public void onResultsSucceded(JSONObject result) {
-                if( result != null){
-                    try {
-                        String status = result.getString("Status");
-                        if (status.equals("OK")){
-                            Toast.makeText(getActivity(),"Added", Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(getActivity(), result.getString("error"), Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }else{
-                    Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
-                }
-                reload();
-
-            }
-
-            @Override
-            public void onResultsFail() {
-            }
-        }, getActivity()).execute();
-    }
-
-
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -334,17 +243,10 @@ public class AlarmFragment extends Fragment {
             public void onResultsSucceded(JSONObject result) {
                 if( result != null){
                     try {
-                        identifierView.setText(result.getString(ID_KEY));
-                        prettyNameEdit.setText(result.getString(PRETTY_KEY));
-                        descriptionEdit.setText(result.getString(DESC_KEY));
-                        activeSwitch.setChecked(result.getBoolean(ACTIVE_KEY));
-
-                        parseDetectors(result.getJSONArray(DETECTOR_KEY));
-
-                        recycleAdapter.setDetectors(pairedDetectors);
-                        recycleAdapter.notifyDataSetChanged();
-                        spinnerAdapter.clear();
-                        spinnerAdapter.addAll(unpairedNames);
+                        identifierView.setText(result.getString(Json.IDENTIFIER));
+                        prettyNameEdit.setText(result.getString(Json.PRETTY_NAME));
+                        descriptionEdit.setText(result.getString(Json.DESCRIPTION));
+                        activeSwitch.setChecked(result.getBoolean(Json.ACTIVE));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -361,31 +263,4 @@ public class AlarmFragment extends Fragment {
         }, getActivity()).execute();
     }
 
-    private void parseDetectors(JSONArray array){
-        try {
-            // map of connected
-            pairedDetectors.clear();
-            for (int i = 0; i< array.length(); i++){
-                pairedDetectors.put(((JSONArray) array.get(i)).getString(0),
-                        ((JSONArray) array.get(i)).getString(1));
-            }
-
-            JSONArray allDetectors = WirelessApp.getDevices().getJSONArray("detector");
-            int len = allDetectors.length();
-            unpairedDetectors.clear();
-            unpairedNames.clear();
-            unpairedIdentifiers.clear();
-            for (int i=0; i<len; i++){
-                String det_id = ((JSONArray) allDetectors.get(i)).getString(0);
-                if (!pairedDetectors.containsKey(det_id)){
-                    unpairedIdentifiers.add(det_id);
-                    String name = ((JSONArray) allDetectors.get(i)).getString(1);
-                    unpairedNames.add(name);
-                    unpairedDetectors.put(det_id, name);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 }

@@ -1,173 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/card_view"
         android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        card_view:cardCornerRadius="5dp">
 
-        <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/card_view"
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            card_view:cardCornerRadius="5dp">
+            android:padding="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/identifierView"
+                android:text="identifier"
+                android:textAllCaps="true"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:typeface="sans" />
+
+            <TextView
+                android:id="@+id/prettyNameView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textAllCaps="true"
+                android:text="Name" />
+
+            <EditText
+                android:id="@+id/prettyNameEdit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="false" />
+
+            <TextView
+                android:id="@+id/descriptionView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textAllCaps="true"
+                android:text="Description" />
+
+            <EditText
+                android:id="@+id/descriptionEdit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="false" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ACTIVE"
+                    android:minWidth="80dp" />
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/active_switch" />
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="80dp"
+                android:layout_gravity="right"
+                android:text="Save" />
+
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/identifierView"
-                    android:text="identifier"
-                    android:textAllCaps="true"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:typeface="sans" />
-
-                <TextView
-                    android:id="@+id/prettyNameView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:textAllCaps="true"
-                    android:text="Name" />
-
-                <EditText
-                    android:id="@+id/prettyNameEdit"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:singleLine="false" />
-
-                <TextView
-                    android:id="@+id/descriptionView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:textAllCaps="true"
-                    android:text="Description" />
-
-                <EditText
-                    android:id="@+id/descriptionEdit"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:singleLine="false" />
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ACTIVE"
-                        android:minWidth="80dp" />
-
-                    <Switch
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/active_switch" />
-                </LinearLayout>
-
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/saveButton"
+                    android:id="@+id/ringButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:width="80dp"
+                    android:text="Ring" />
+
+                <Button
+                    android:id="@+id/stopButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:width="80dp"
-                    android:layout_gravity="right"
-                    android:text="Save" />
-
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/ringButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="20dp"
-                        android:width="80dp"
-                        android:text="Ring" />
-
-                    <Button
-                        android:id="@+id/stopButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:width="80dp"
-                        android:text="Stop" />
-                </LinearLayout>
-
+                    android:text="Stop" />
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </LinearLayout>
 
-        <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/name_view"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            card_view:cardCornerRadius="5dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:padding="5dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Detectors"
-                    android:id="@+id/header_view"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:typeface="sans" />
-
-                <Spinner
-                    android:id="@+id/spinner"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" />
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:id="@+id/add_button"
-                    android:src="@drawable/ic_action_new" />
-
-                <View
-                    android:layout_width="fill_parent"
-                    android:layout_height="1dp"
-                    android:background="?android:attr/listDivider" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recycler_view"
-                    android:layout_width="fill_parent"
-                    android:minHeight="120dp"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="vertical" />
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
+    </android.support.v7.widget.CardView>
 
 
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

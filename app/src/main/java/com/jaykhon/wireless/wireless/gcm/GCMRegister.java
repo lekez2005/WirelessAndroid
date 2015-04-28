@@ -10,6 +10,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.jaykhon.wireless.wireless.WirelessApp;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
 import com.jaykhon.wireless.wireless.devices.alarm.AlarmFragment;
+import com.jaykhon.wireless.wireless.utils.Json;
 import com.jaykhon.wireless.wireless.utils.Preferences;
 
 import org.json.JSONException;
@@ -63,7 +64,7 @@ public class GCMRegister {
         JSONObject obj = new JSONObject();
         String url = WirelessApp.getBaseUrl() + "user/update/gcm";
         try {
-            obj.put(AlarmFragment.ID_KEY, prefs.getUserId());
+            obj.put(Json.IDENTIFIER, prefs.getUserId());
             obj.put("gcm_id", id);
         } catch (JSONException e) {
             e.printStackTrace();
