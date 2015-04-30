@@ -27,6 +27,7 @@ import com.jaykhon.wireless.wireless.connect.Command;
 import com.jaykhon.wireless.wireless.connect.ResultListener;
 import com.jaykhon.wireless.wireless.connect.SendRequest;
 import com.jaykhon.wireless.wireless.utils.Dialogs;
+import com.jaykhon.wireless.wireless.utils.Json;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -147,6 +148,9 @@ public class NavigationDrawerFragment extends Fragment implements ReloadCallback
             Iterator<String> keys = devices.keys();
             while (keys.hasNext()) {
                 final String key = keys.next();
+                if (key.equals(Json.ACTIVATED)){
+                    continue;
+                }
                 groupData.add(new HashMap<String, String>() {{
                     if (key.equals("rfid")) {
                         put(ROOT_NAME, "RFID");

@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -98,8 +99,9 @@ public class GCMIntentService extends IntentService {
         .setContentText(message);
 
         mBuilder.setContentIntent(contentIntent);
-        Uri sound = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.alarm);
-        mBuilder.setSound(sound);
+        //Uri sound = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.alarm);
+        Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        mBuilder.setSound(alarmTone);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
 }

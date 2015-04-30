@@ -236,7 +236,7 @@ public class DoorFragment extends Fragment implements ReloadFragment {
             public void onResultsSucceded(JSONObject result) {
                 if( result != null){
                     try {
-                        rfid_identifier = result.getJSONObject(RFID_KEY).getString(ID_KEY);
+                        //rfid_identifier = result.getJSONObject(RFID_KEY).getString(ID_KEY);
                         identifierView.setText(result.getString(ID_KEY));
                         prettyNameEdit.setText(result.getString(PRETTY_KEY));
                         descriptionEdit.setText(result.getString(DESC_KEY));

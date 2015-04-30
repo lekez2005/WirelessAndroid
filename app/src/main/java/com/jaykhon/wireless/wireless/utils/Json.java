@@ -18,8 +18,11 @@ public class Json {
     public static final String DESCRIPTION = "description";
     public static final String ALARM = "alarm";
     public static final String ALARMS = "alarms";
+    public static final String DOOR = "door";
     public static final String DETECTOR = "detector";
     public static final String DETECTORS = "detectors";
+    public static final String ACTIVATED = "activated";
+    public static final String STATE = "state";
 
 
     public static String[] getIdentifiersFromJson(int parentPosition, int childPosition, JSONObject devices){

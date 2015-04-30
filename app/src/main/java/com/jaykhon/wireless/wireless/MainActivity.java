@@ -4,9 +4,13 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,13 +19,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaykhon.wireless.wireless.authorize.UserSelectActivity;
+import com.jaykhon.wireless.wireless.devices.alarm.AlarmAdapter;
 import com.jaykhon.wireless.wireless.devices.alarm.AlarmFragment;
 import com.jaykhon.wireless.wireless.devices.detector.DetectorFragment;
+import com.jaykhon.wireless.wireless.devices.door.DoorAdapter;
 import com.jaykhon.wireless.wireless.devices.door.DoorFragment;
 import com.jaykhon.wireless.wireless.devices.rfid.RfidFragment;
 import com.jaykhon.wireless.wireless.connect.Async;
@@ -31,6 +40,7 @@ import com.jaykhon.wireless.wireless.connect.SendRequest;
 import com.jaykhon.wireless.wireless.utils.Dialogs;
 import com.jaykhon.wireless.wireless.utils.Json;
 
+import org.apache.http.impl.conn.Wire;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,9 +60,6 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
     private NavigationDrawerFragment mNavigationDrawerFragment;
     public static final String DEVICE_KEY = "device";
     public static final String IDENTIFIER_KEY = "identifier";
-
-    public static final String IDENTIFIER = "identifier";
-    public static final String PRETTY_NAME = "pretty_name";
 
 
     /**
@@ -196,6 +203,10 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
                     WirelessApp.setLastConnectionSuccess(true);
                     Toast.makeText(getApplicationContext(), "Refreshed!", Toast.LENGTH_SHORT).show();
                     mNavigationDrawerFragment.onReload();
+                    Fragment f = getFragmentManager().findFragmentById(R.id.container);
+                    if (f instanceof MainActivityFragment){
+                        ((MainActivityFragment) f).reloadFragment();
+                    }
                 }else {
                     Toast.makeText(getApplicationContext(), "Refresh Failed", Toast.LENGTH_SHORT).show();
                 }
@@ -215,6 +226,18 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
          * The fragment argument representing the section number for this
          * fragment.
          */
+
+        private Switch activatedSwitch;
+        View indicatorView;
+
+        RecyclerView doorRecycler;
+        DoorAdapter doorAdapter;
+        RecyclerView.LayoutManager doorManager;
+
+        RecyclerView alarmRecycler;
+        AlarmAdapter alarmAdapter;
+        RecyclerView.LayoutManager alarmManager;
+
         public MainActivityFragment() {
             setHasOptionsMenu(true);
         }
@@ -234,55 +257,97 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            //reloadFragment();
 
-            final EditText ipText = (EditText) rootView.findViewById(R.id.ipaddress);
-            ipText.setText(WirelessApp.getPreferences().getServerIp());
-            final EditText portText = (EditText) rootView.findViewById(R.id.portText);
-            portText.setText(WirelessApp.getPreferences().getServerPort());
-            final TextView resultView = (TextView) rootView.findViewById(R.id.resultView);
-
-            Button button = (Button) rootView.findViewById(R.id.sendButton);
-            button.setOnClickListener(new View.OnClickListener() {
+            activatedSwitch = (Switch) rootView.findViewById(R.id.activated_switch);
+            activatedSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View v) {
-                    String ip = ipText.getText().toString();
-                    WirelessApp.setIp(ip);
-                    String port = portText.getText().toString();
-                    WirelessApp.setPort(port);
-                    final String url = WirelessApp.getBaseUrl();
-                    Log.d("Wireless: ", url);
-                    new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
-                        @Override
-                        public JSONObject execute() {
-                            return SendRequest.getJsonFromUrl(url, null);
-
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    JSONObject data = new JSONObject();
+                    try {
+                        if (WirelessApp.getDevices()!=null &&
+                                WirelessApp.getDevices().getBoolean(Json.ACTIVATED) != isChecked){
+                            goToUrl(WirelessApp.getBaseUrl() + "activate", data);
+                            data.put(Json.STATE, isChecked);
                         }
-                    }, new ResultListener<JSONObject>() {
-                        @Override
-                        public void onResultsSucceded(JSONObject result) {
-                            if( result != null){
-                                try {
-                                    String f = result.toString(4);
-                                    resultView.setText(f);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }else{
-                                resultView.setText("Invalid");
-                            }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-                        }
 
-                        @Override
-                        public void onResultsFail() {
-
-                        }
-                    }, getActivity()).execute();
                 }
             });
+            indicatorView = rootView.findViewById(R.id.indicator_view);
+
+//            doorRecycler = (RecyclerView) rootView.findViewById(R.id.door_recycler);
+//            doorManager = new LinearLayoutManager(getActivity());
+//            doorRecycler.setLayoutManager(doorManager);
+//            doorAdapter = new DoorAdapter(getActivity());
+//            doorRecycler.setAdapter(doorAdapter);
+
+            alarmRecycler = (RecyclerView) rootView.findViewById(R.id.alarm_recycler);
+            alarmManager = new LinearLayoutManager(getActivity());
+            alarmRecycler.setLayoutManager(alarmManager);
+            alarmAdapter = new AlarmAdapter(getActivity());
+            alarmRecycler.setAdapter(alarmAdapter);
 
 
             return rootView;
+        }
+
+        private void reloadFragment(){
+            JSONObject devices = WirelessApp.getDevices();
+            if (devices != null && this.isVisible()){
+                try {
+                    activatedSwitch.setChecked(devices.getBoolean(Json.ACTIVATED));
+                    if (devices.getBoolean(Json.ACTIVATED)){
+                        indicatorView.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+                    }else {
+                        indicatorView.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark));
+                    }
+                    //doorAdapter.notifyDataSetChanged();
+                    alarmAdapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void goToUrl(final String url, final JSONObject data){
+            new Async<Void, Void, JSONObject>(new Command<JSONObject>() {
+                @Override
+                public JSONObject execute() {
+                    if (data == null){
+                        return SendRequest.getJsonFromUrl(url, null);
+                    }else {
+                        return SendRequest.postJsonToUrl(url, data, null);
+                    }
+
+                }
+            }, new ResultListener<JSONObject>() {
+                @Override
+                public void onResultsSucceded(JSONObject result) {
+                    if (result != null) {
+                        try {
+                            String status = result.getString("Status");
+                            if (status.equals("OK")){
+                                Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+                                ((MainActivity) getActivity()).updateDeviceList();
+                            }else{
+                                Toast.makeText(getActivity(), result.getString("error"), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }else {
+                        Toast.makeText(getActivity(), "Refresh Failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onResultsFail() {
+                }
+            }, getActivity()).execute();
         }
 
         @Override
@@ -290,6 +355,13 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
             super.onAttach(activity);
         }
     }
+
+
+
+
+
+
+
 
 
 }

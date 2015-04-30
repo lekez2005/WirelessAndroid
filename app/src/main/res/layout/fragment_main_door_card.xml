@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="fill_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_alignParentTop="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Name"
+        android:id="@+id/pretty_name_view"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pretty_name_view"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="15dp"
+        android:text="Unlock"
+        android:id="@+id/ring_button"
+        android:width="120dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pretty_name_view"
+        android:layout_toRightOf="@+id/ring_button"
+        android:text="Lock"
+        android:id="@+id/stop_button"
+        android:width="120dp"/>
+
+</RelativeLayout>
