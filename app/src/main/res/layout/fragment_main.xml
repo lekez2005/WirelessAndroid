@@ -66,12 +66,13 @@
             android:text="Doors"
             android:id="@+id/textView3" />
 
-        <!--<android.support.v7.widget.RecyclerView-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/door_recycler">-->
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/door_recycler">
 
-        <!--</android.support.v7.widget.RecyclerView>-->
+        </android.support.v7.widget.RecyclerView>
 
         <View
             android:layout_width="fill_parent"
@@ -91,6 +92,7 @@
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:id="@+id/alarm_recycler">
 
         </android.support.v7.widget.RecyclerView>

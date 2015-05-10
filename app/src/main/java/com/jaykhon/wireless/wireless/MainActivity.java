@@ -80,7 +80,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-        updateDeviceList();
+        //updateDeviceList();
 
         Intent i = getIntent();
         replaceFragment(i.getStringExtra(DEVICE_KEY), i.getStringExtra(IDENTIFIER_KEY));
@@ -99,6 +99,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
 
     private  void replaceFragment(String deviceType, String identifier){
         if (deviceType == null || identifier == null) {
+            updateDeviceList();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new MainActivityFragment())
@@ -166,6 +167,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
             startActivity(intent);
             return true; //TODO put settings here
         }else if(id == R.id.action_home){
+            updateDeviceList();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new MainActivityFragment())
@@ -279,11 +281,11 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
             });
             indicatorView = rootView.findViewById(R.id.indicator_view);
 
-//            doorRecycler = (RecyclerView) rootView.findViewById(R.id.door_recycler);
-//            doorManager = new LinearLayoutManager(getActivity());
-//            doorRecycler.setLayoutManager(doorManager);
-//            doorAdapter = new DoorAdapter(getActivity());
-//            doorRecycler.setAdapter(doorAdapter);
+            doorRecycler = (RecyclerView) rootView.findViewById(R.id.door_recycler);
+            doorManager = new LinearLayoutManager(getActivity());
+            doorRecycler.setLayoutManager(doorManager);
+            doorAdapter = new DoorAdapter(getActivity());
+            doorRecycler.setAdapter(doorAdapter);
 
             alarmRecycler = (RecyclerView) rootView.findViewById(R.id.alarm_recycler);
             alarmManager = new LinearLayoutManager(getActivity());
@@ -305,7 +307,7 @@ public class MainActivity extends Activity  implements NavigationDrawerFragment.
                     }else {
                         indicatorView.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark));
                     }
-                    //doorAdapter.notifyDataSetChanged();
+                    doorAdapter.notifyDataSetChanged();
                     alarmAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
